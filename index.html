@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linux Lab · Interactive Linux Training Platform</title>
+<meta name="description" content="A browser-based Linux training platform that gives every trainee a real, isolated Ubuntu system, with recorded lessons, live monitoring, and auto-graded exams. Designed, built, and run by Sami Al-Mutairi.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#061c1b; --bg-1:#0b2b29; --bg-2:#123c38;
+    --gold:#d9b166; --gold-soft:#e6cd9b;
+    --ink:#f3f1ea; --muted:#a9bbb6; --faint:#6f8a84;
+    --card:rgba(255,255,255,.045); --line:rgba(217,177,102,.24); --line-soft:rgba(255,255,255,.08);
+    --ok:#7ed384;
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--bg-0);scroll-behavior:smooth}
+  body{
+    margin:0;font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    color:var(--ink);font-size:17px;line-height:1.7;
+    background:linear-gradient(170deg,var(--bg-0) 0%,var(--bg-1) 40%,var(--bg-2) 100%);
+    min-height:100vh;
+  }
+  a{color:var(--gold-soft)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+  code,.mono{font-family:"IBM Plex Mono",Consolas,monospace}
+
+  /* ---------- top bar ---------- */
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 0}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:var(--ink);text-decoration:none}
+  .brand .ico{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:var(--gold);
+              color:#22190a;font:600 15px "IBM Plex Mono",monospace}
+  .bar nav{display:flex;gap:20px;font-size:15px;flex-wrap:wrap}
+  .bar nav a{color:var(--muted);text-decoration:none}
+  .bar nav a:hover{color:var(--gold-soft)}
+
+  /* ---------- hero ---------- */
+  .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center;padding:42px 0 56px}
+  .eyebrow{display:inline-block;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);
+           border:1px solid var(--line);border-radius:999px;padding:3px 12px;margin-bottom:18px}
+  h1{font-size:46px;line-height:1.12;margin:0 0 18px;letter-spacing:-.02em}
+  h1 em{font-style:normal;color:var(--gold)}
+  .lead{font-size:19px;color:var(--muted);margin:0 0 26px;max-width:560px}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+  .tags span{font-size:14px;border:1px solid var(--line-soft);background:var(--card);border-radius:999px;padding:4px 12px;color:var(--ink)}
+  .cta{display:flex;gap:12px;flex-wrap:wrap}
+  .btn{display:inline-block;padding:11px 20px;border-radius:10px;font-weight:600;font-size:16px;text-decoration:none}
+  .btn.primary{background:var(--gold);color:#22190a}
+  .btn.ghost{border:1px solid var(--line);color:var(--gold-soft)}
+  .btn:hover{filter:brightness(1.07)}
+
+  /* terminal illustration */
+  .term{border-radius:14px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 60px -25px rgba(0,0,0,.65);background:#071615}
+  .term .top{display:flex;align-items:center;gap:7px;padding:10px 14px;background:#0d2523;border-bottom:1px solid var(--line-soft)}
+  .term .top i{width:11px;height:11px;border-radius:50%;background:#3c5a55}
+  .term .top i:first-child{background:#e0786a}.term .top i:nth-child(2){background:#e3c27a}.term .top i:nth-child(3){background:#7ed384}
+  .term .top span{margin-left:10px;font:13px "IBM Plex Mono",monospace;color:var(--faint)}
+  .term pre{margin:0;padding:18px 18px 20px;font:14.5px/1.75 "IBM Plex Mono",Consolas,monospace;color:#dfe9e6;white-space:pre-wrap;word-break:break-word}
+  .term .p{color:var(--ok)} .term .d{color:#7fb1ff} .term .c{color:var(--gold-soft)} .term .m{color:var(--faint)}
+  .term .chk{display:flex;align-items:center;gap:10px;margin:0 18px 18px;padding:9px 12px;border-radius:9px;
+             background:rgba(126,211,132,.1);border:1px solid rgba(126,211,132,.35);color:var(--ok);font-size:14.5px}
+
+  /* ---------- sections ---------- */
+  section{padding:56px 0;border-top:1px solid var(--line-soft)}
+  h2{font-size:31px;line-height:1.25;margin:0 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0 0 30px;max-width:720px;font-size:18px}
+
+  .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+  .stat{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);padding:18px 16px}
+  .stat b{display:block;font:600 30px/1.2 "IBM Plex Mono",monospace;color:var(--gold)}
+  .stat span{font-size:14.5px;color:var(--muted)}
+  .note{font-size:14px;color:var(--faint);margin-top:12px}
+
+  .why{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .why .card p{margin:0;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);padding:22px 22px}
+  .card h3{margin:0 0 8px;font-size:19px}
+  .card.hl{border-color:var(--line)}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .card ul{margin:0;padding-left:20px;color:var(--muted)}
+  .card li{margin-bottom:6px}
+  .card li b{color:var(--ink);font-weight:600}
+  .kicker{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+
+  /* architecture */
+  .arch{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+  .node{flex:1;min-width:150px;background:var(--card);border:1px solid var(--line-soft);border-radius:14px;padding:16px}
+  .node b{display:block;font-size:16px;margin-bottom:4px}
+  .node span{font-size:14px;color:var(--muted);line-height:1.55;display:block}
+  .arrow{display:grid;place-items:center;width:34px;color:var(--gold);font-size:20px;flex:none}
+  .arch-foot{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+
+  /* screenshots */
+  .shots{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+  figure{margin:0}
+  .frame{position:relative;aspect-ratio:16/10;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#071615}
+  .frame a{display:block;height:100%}
+  .frame img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;transition:transform .2s}
+  .frame a:hover img{transform:scale(1.015)}
+  .frame.missing img{display:none}
+  .frame.missing::after{
+    content:attr(data-file);position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;
+    font:14px "IBM Plex Mono",monospace;color:var(--faint);
+    background:repeating-linear-gradient(135deg,transparent 0 14px,rgba(255,255,255,.025) 14px 28px);
+  }
+  figcaption{margin-top:10px;font-size:15.5px;color:var(--muted)}
+  figcaption b{color:var(--ink);font-weight:600}
+
+  .stack{display:flex;flex-wrap:wrap;gap:10px}
+  .stack span{font:14.5px "IBM Plex Mono",monospace;border:1px solid var(--line);border-radius:9px;padding:6px 12px;color:var(--gold-soft)}
+
+  .me{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:start}
+  .me p{color:var(--muted);margin:0 0 14px}
+  .me p b{color:var(--ink)}
+
+  footer{padding:34px 0 44px;border-top:1px solid var(--line-soft);color:var(--faint);font-size:14.5px}
+  footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+  @media (max-width:900px){
+    .hero{grid-template-columns:1fr;gap:34px;padding-top:20px}
+    h1{font-size:36px}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .why,.grid,.shots,.me,.arch-foot{grid-template-columns:1fr}
+    .arch{flex-direction:column}
+    .arrow{width:auto;height:30px;transform:rotate(90deg)}
+    .bar nav{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="bar">
+    <a class="brand" href="#top"><span class="ico">&gt;_</span>Linux Lab</a>
+    <nav>
+      <a href="#why">Why</a>
+      <a href="#features">Features</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#screenshots">Screenshots</a>
+      <a href="#about">About</a>
+    </nav>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <div class="hero" id="top">
+    <div>
+      <span class="eyebrow">Education technology · In use since 2026</span>
+      <h1>A real Linux system for every trainee, <em>right in the browser.</em></h1>
+      <p class="lead">
+        Linux Lab is a bilingual Arabic and English training platform for a Linux command-line course.
+        Each trainee works in an isolated Ubuntu container, follows recorded lessons step by step,
+        and takes timed practical exams that are graded automatically.
+      </p>
+      <div class="tags">
+        <span>Real Ubuntu containers</span>
+        <span>Live terminal monitoring</span>
+        <span>Auto-graded practical exams</span>
+        <span>Arabic and English interface</span>
+      </div>
+      <div class="cta">
+        <a class="btn primary" href="#screenshots">See it in action</a>
+        <a class="btn ghost" href="#architecture">How it works</a>
+      </div>
+    </div>
+
+    <div class="term" aria-label="Illustration of a trainee terminal session">
+      <div class="top"><i></i><i></i><i></i><span>sysadmin@lab: ~</span></div>
+<pre><span class="p">sysadmin@lab</span>:<span class="d">~</span>$ <span class="c">mkdir -p projects/{web,db}/logs</span>
+<span class="p">sysadmin@lab</span>:<span class="d">~</span>$ <span class="c">tree projects</span>
+projects
+├── db
+│   └── logs
+└── web
+    └── logs
+
+<span class="m">5 directories, 0 files</span>
+<span class="p">sysadmin@lab</span>:<span class="d">~</span>$ <span class="c">tar -czf backup.tar.gz projects</span>
+<span class="p">sysadmin@lab</span>:<span class="d">~</span>$ <span class="c">ls -lh backup.tar.gz</span>
+-rw-r--r-- 1 sysadmin sysadmin 213 Nov 12 10:41 backup.tar.gz</pre>
+      <div class="chk">✓ Exercise checked: directory tree and archive are correct</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== NUMBERS ===================== -->
+<section>
+  <div class="wrap">
+    <h2>Used in real classes, every week</h2>
+    <p class="sub">Linux Lab is not a prototype. It runs the practical side of a full-semester course: lessons, exercises, and exams.</p>
+    <div class="stats">
+      <div class="stat"><b>103</b><span>trainees</span></div>
+      <div class="stat"><b>6</b><span>class sections</span></div>
+      <div class="stat"><b>1,317</b><span>lab sessions</span></div>
+      <div class="stat"><b>41,505</b><span>commands run and logged</span></div>
+      <div class="stat"><b>152</b><span>exam sessions</span></div>
+    </div>
+    <p class="note">Figures as of November 2026, the middle of the first semester in use.</p>
+  </div>
+</section>
+
+<!-- ===================== WHY ===================== -->
+<section id="why">
+  <div class="wrap">
+    <h2>Why I built it</h2>
+    <p class="sub">Most Linux courses rely on simulated terminals. They teach the syntax of a command, but not how a real system responds to it.</p>
+    <div class="why">
+      <div class="card">
+        <h3>The problem</h3>
+        <p>
+          Simulators accept a fixed list of commands and return canned output. Trainees memorize
+          answers instead of exploring. Installing Linux on shared lab computers is not practical,
+          and most trainees cannot run it at home.
+        </p>
+      </div>
+      <div class="card hl">
+        <h3>The approach</h3>
+        <p>
+          Every trainee gets a real Ubuntu system, isolated in its own container and opened with a
+          single click. It works the same from a lab computer or a laptop at home.
+          Nothing to install, and nothing a mistake can break for anyone else.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FEATURES ===================== -->
+<section id="features">
+  <div class="wrap">
+    <h2>What it does</h2>
+    <p class="sub">One platform covers the whole practical workflow, from the first lesson to the final grade sheet.</p>
+    <div class="grid">
+      <div class="card">
+        <div class="kicker">For trainees</div>
+        <h3>Learn by doing</h3>
+        <ul>
+          <li><b>A personal Ubuntu container</b> in the browser, with files that persist between sessions.</li>
+          <li><b>Recorded lessons</b> that replay the instructor's terminal so trainees can follow along at their own pace.</li>
+          <li><b>Exercises checked automatically</b> against the actual state of the system, not against a typed answer.</li>
+          <li><b>Personal progress indicators</b> for lesson adherence and command accuracy, compared with an anonymous class average.</li>
+          <li><b>A “My mistakes” page</b> that collects failed commands for review.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="kicker">For instructors</div>
+        <h3>See every terminal, live</h3>
+        <ul>
+          <li><b>Live monitoring</b> of all trainee terminals during class, with the option to step in and help.</li>
+          <li><b>One-click lesson recording</b>: the instructor's terminal is streamed and saved as a replayable lesson.</li>
+          <li><b>An exercise editor</b> that verifies each model solution in a disposable container before publishing.</li>
+          <li><b>A 16-week course calendar</b> aligned with the official plan, with reminders before exams.</li>
+          <li><b>Role-based access</b> for the platform admin, instructors, and read-only reviewers.</li>
+          <li><b>Arabic and English</b> interfaces, switchable per user, so any institution can run its own course.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="kicker">Exams</div>
+        <h3>Practical exams, graded fairly</h3>
+        <ul>
+          <li><b>Timed exams</b> with a countdown, questions as a file or as written items, and a dedicated exam mode.</li>
+          <li><b>Automatic grading</b> that matches what the trainee actually ran against an answer key, accepting renamed files and self-corrected mistakes.</li>
+          <li><b>Manual questions and paper marks</b> combined into one total.</li>
+          <li><b>PDF grade sheets and a CSV export</b> ready for upload to the official learning management system.</li>
+          <li><b>Cross-section statistics</b>: highest and lowest scores, scores below 50%, absences, and barred trainees.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="kicker">Privacy &amp; security</div>
+        <h3>Built with care for trainee data</h3>
+        <ul>
+          <li><b>Minimal personal data</b>, a published privacy policy, and trainee consent on first sign-in.</li>
+          <li><b>Hardened containers</b>: rootless Docker, a read-only base system, dropped capabilities, and per-trainee disk quotas.</li>
+          <li><b>Salted scrypt password hashing</b>, login throttling, and one-time recovery codes.</li>
+          <li><b>An audit log</b> of every administrative action.</li>
+          <li><b>A full security review</b> in November 2026, with fixes deployed in prioritized batches.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ARCHITECTURE ===================== -->
+<section id="architecture">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <p class="sub">A deliberately simple stack that one person can build, run, and maintain on a single virtual server.</p>
+    <div class="arch">
+      <div class="node"><b>Browser</b><span>Vanilla JavaScript interface with an xterm.js terminal over WebSocket</span></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node"><b>Caddy</b><span>Reverse proxy with automatic HTTPS</span></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node"><b>FastAPI</b><span>Sessions, lessons, exercises, exams, and grading</span></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="node"><b>Rootless Docker</b><span>One isolated Ubuntu container per trainee, created on demand</span></div>
+    </div>
+    <div class="arch-foot">
+      <div class="card"><h3>SQLite (WAL)</h3><p style="margin:0;color:var(--muted)">Users, attempts, command logs, and grades, with hourly and daily backups.</p></div>
+      <div class="card"><h3>Grading engine</h3><p style="margin:0;color:var(--muted)">A pure scoring module, kept separate from the database so its rules can be tested on their own.</p></div>
+      <div class="card"><h3>Resilience</h3><p style="margin:0;color:var(--muted)">A dropped connection reconnects to the same container within five minutes; idle containers are cleaned up.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SCREENSHOTS ===================== -->
+<section id="screenshots">
+  <div class="wrap">
+    <h2>Screenshots</h2>
+    <p class="sub">The interface runs in Arabic (right to left) or English, and each user can switch with one click. These screenshots show the English interface with demo accounts, not real trainee data.</p>
+    <div class="shots">
+      <figure>
+        <div class="frame" data-file="screenshots/01-terminal.png"><a href="screenshots/01-terminal.png" target="_blank" rel="noopener"><img src="screenshots/01-terminal.png" alt="Trainee workspace with the terminal and the exercise panel" onerror="this.parentElement.classList.add('missing')"></a></div>
+        <figcaption><b>Trainee workspace.</b> A real Ubuntu terminal next to the exercise panel and its automatic check.</figcaption>
+      </figure>
+      <figure>
+        <div class="frame" data-file="screenshots/02-live-monitoring.png"><a href="screenshots/02-live-monitoring.png" target="_blank" rel="noopener"><img src="screenshots/02-live-monitoring.png" alt="Instructor view of all trainee terminals during class" onerror="this.parentElement.classList.add('missing')"></a></div>
+        <figcaption><b>Live monitoring.</b> The instructor sees every terminal in the class at once.</figcaption>
+      </figure>
+      <figure>
+        <div class="frame" data-file="screenshots/03-recorded-lesson.png"><a href="screenshots/03-recorded-lesson.png" target="_blank" rel="noopener"><img src="screenshots/03-recorded-lesson.png" alt="A recorded lesson replaying the instructor's terminal" onerror="this.parentElement.classList.add('missing')"></a></div>
+        <figcaption><b>Recorded lessons.</b> The instructor's terminal replays step by step while trainees practice.</figcaption>
+      </figure>
+      <figure>
+        <div class="frame" data-file="screenshots/04-exam.png"><a href="screenshots/04-exam.png" target="_blank" rel="noopener"><img src="screenshots/04-exam.png" alt="A practical exam with a countdown timer" onerror="this.parentElement.classList.add('missing')"></a></div>
+        <figcaption><b>Practical exam.</b> A timed exam in a dedicated mode, graded from the commands the trainee ran.</figcaption>
+      </figure>
+      <figure>
+        <div class="frame" data-file="screenshots/05-performance.png"><a href="screenshots/05-performance.png" target="_blank" rel="noopener"><img src="screenshots/05-performance.png" alt="Trainee performance indicators compared with the class average" onerror="this.parentElement.classList.add('missing')"></a></div>
+        <figcaption><b>Progress indicators.</b> Lesson adherence and command accuracy, compared with an anonymous class average.</figcaption>
+      </figure>
+      <figure>
+        <div class="frame" data-file="screenshots/06-dashboard.png"><a href="screenshots/06-dashboard.png" target="_blank" rel="noopener"><img src="screenshots/06-dashboard.png" alt="Instructor dashboard with sections, exams, and quick actions" onerror="this.parentElement.classList.add('missing')"></a></div>
+        <figcaption><b>Instructor dashboard.</b> Sections, upcoming exams, and the tasks that need attention.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== STACK ===================== -->
+<section>
+  <div class="wrap">
+    <h2>Technology</h2>
+    <p class="sub">Chosen for reliability on modest hardware: two virtual CPUs and 8 GB of RAM serve a full class at once.</p>
+    <div class="stack">
+      <span>Python</span><span>FastAPI</span><span>SQLite</span><span>Docker (rootless)</span>
+      <span>xterm.js</span><span>WebSocket</span><span>Caddy</span><span>Ubuntu</span>
+      <span>Vanilla JavaScript</span><span>fpdf2</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ABOUT ===================== -->
+<section id="about">
+  <div class="wrap me">
+    <div>
+      <h2>About the project</h2>
+      <p>
+        I am <b>Sami Al-Mutairi</b>, a computer and information technology trainer. I designed, built,
+        and operate Linux Lab on my own, and I use it to teach the practical side of my
+        operating systems course.
+      </p>
+      <p>
+        The course content follows the <b>LPI Linux Essentials</b> objectives, spread over a 16-week
+        plan with two lectures a week. Every feature on this page came from a real classroom need,
+        and most were shaped by feedback from the trainees who use it.
+      </p>
+    </div>
+    <div class="card hl">
+      <h3>About this repository</h3>
+      <p style="margin:0 0 10px;color:var(--muted)">
+        This repository presents the project and its results. The source code is private and is not
+        published here.
+      </p>
+      <p style="margin:0;color:var(--muted)">
+        For a demonstration or a conversation about the project, contact me through my GitHub profile.
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Sami Al-Mutairi · Linux Lab</span>
+    <span>Screenshots use demo data. Source code is private.</span>
+  </div>
+</footer>
+
+</body>
+</html>
